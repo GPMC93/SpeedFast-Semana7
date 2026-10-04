@@ -1,8 +1,8 @@
 package vista;
 
-import modelo.EstadoPedido;
 import modelo.GestorPedidos;
 import modelo.Pedido;
+import modelo.Repartidor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,13 +10,12 @@ import java.awt.*;
 import dao.EntregaDAO;
 import dao.PedidoDAO;
 import dao.RepartidorDAO;
-import modelo.Repartidor;
 
 import java.util.List;
 
 /*
- * Ventana principalde SpeedFast
- * Permite acceder al registro, listado y gestión de entregas
+ * Ventana principal de SpeedFast.
+ * Permite acceder al registro, listado y gestión de entregas.
  */
 public class VentanaPrincipal extends JFrame {
 
@@ -26,10 +25,13 @@ public class VentanaPrincipal extends JFrame {
     private JButton botonListar;
     private JButton botonEntrega;
     private JButton botonRegistrarRepartidor;
+    private JButton botonListarRepartidores;
+    private JButton botonListarEntregas;
 
     private PedidoDAO pedidoDAO;
     private RepartidorDAO repartidorDAO;
     private EntregaDAO entregaDAO;
+
 
     public VentanaPrincipal() {
 
@@ -50,7 +52,7 @@ public class VentanaPrincipal extends JFrame {
         );
 
         JPanel panelBotones = new JPanel(
-                new GridLayout(4, 1, 10, 10)
+                new GridLayout(6, 1, 10, 10)
         );
 
         panelBotones.setBorder(
@@ -68,10 +70,18 @@ public class VentanaPrincipal extends JFrame {
                 "Asignar repartidor / Iniciar entrega"
         );
 
+        botonListarRepartidores =
+                new JButton("Listar repartidores");
+
+        botonListarEntregas =
+                new JButton("Listar entregas");
+
         panelBotones.add(botonRegistrar);
         panelBotones.add(botonRegistrarRepartidor);
         panelBotones.add(botonListar);
         panelBotones.add(botonEntrega);
+        panelBotones.add(botonListarRepartidores);
+        panelBotones.add(botonListarEntregas);
 
         add(titulo, BorderLayout.NORTH);
         add(panelBotones, BorderLayout.CENTER);
@@ -92,31 +102,44 @@ public class VentanaPrincipal extends JFrame {
                 e -> new VentanaRegistroRepartidor()
         );
 
+        botonListarRepartidores.addActionListener(e -> {
+            new VentanaListaRepartidores();
+        });
+
+        botonListarEntregas.addActionListener(e -> {
+            new VentanaListaEntregas();
+        });
+
         setVisible(true);
     }
 
+
     /*
-     * Permite seleccionar un pedido pendiente
-     * asignar un repartidor e iniciar su entrega
+     * Permite seleccionar un pedido pendiente,
+     * asignar un repartidor e iniciar su entrega.
      */
     private void iniciarEntrega() {
 
-        List<Pedido> pedidos = pedidoDAO.listarTodos();
+        List<Pedido> pedidos =
+                pedidoDAO.listarTodos();
 
         if (pedidos.isEmpty()) {
+
             JOptionPane.showMessageDialog(
                     this,
                     "No existen pedidos registrados.",
                     "SpeedFast",
                     JOptionPane.WARNING_MESSAGE
             );
+
             return;
         }
 
-        String textoId = JOptionPane.showInputDialog(
-                this,
-                "Ingrese el ID del pedido:"
-        );
+        String textoId =
+                JOptionPane.showInputDialog(
+                        this,
+                        "Ingrese el ID del pedido:"
+                );
 
         if (textoId == null) {
             return;
@@ -125,7 +148,9 @@ public class VentanaPrincipal extends JFrame {
         int idPedido;
 
         try {
-            idPedido = Integer.parseInt(textoId);
+
+            idPedido =
+                    Integer.parseInt(textoId);
 
         } catch (NumberFormatException e) {
 
@@ -135,18 +160,22 @@ public class VentanaPrincipal extends JFrame {
                     "ID inválido",
                     JOptionPane.ERROR_MESSAGE
             );
+
             return;
         }
+
 
         Pedido pedidoEncontrado = null;
 
         for (Pedido pedido : pedidos) {
 
             if (pedido.getIdPedido() == idPedido) {
+
                 pedidoEncontrado = pedido;
                 break;
             }
         }
+
 
         if (pedidoEncontrado == null) {
 
@@ -156,8 +185,10 @@ public class VentanaPrincipal extends JFrame {
                     "Pedido no encontrado",
                     JOptionPane.WARNING_MESSAGE
             );
+
             return;
         }
+
 
         if (pedidoEncontrado.getEstado()
                 != modelo.EstadoPedido.PENDIENTE) {
@@ -168,8 +199,10 @@ public class VentanaPrincipal extends JFrame {
                     "Entrega no disponible",
                     JOptionPane.WARNING_MESSAGE
             );
+
             return;
         }
+
 
         List<Repartidor> repartidores =
                 repartidorDAO.listarTodos();
@@ -182,8 +215,10 @@ public class VentanaPrincipal extends JFrame {
                     "SpeedFast",
                     JOptionPane.WARNING_MESSAGE
             );
+
             return;
         }
+
 
         Repartidor repartidorSeleccionado =
                 (Repartidor) JOptionPane.showInputDialog(
@@ -196,32 +231,55 @@ public class VentanaPrincipal extends JFrame {
                         repartidores.get(0)
                 );
 
+
         if (repartidorSeleccionado == null) {
             return;
         }
 
-        modelo.Entrega entrega = new modelo.Entrega(
-                pedidoEncontrado.getIdPedido(),
-                repartidorSeleccionado.getId()
-        );
 
-        entregaDAO.guardar(entrega);
+        modelo.Entrega entrega =
+                new modelo.Entrega(
+                        pedidoEncontrado.getIdPedido(),
+                        repartidorSeleccionado.getId()
+                );
 
-        pedidoDAO.actualizarEstado(
-                pedidoEncontrado.getIdPedido(),
-                "EN_REPARTO"
-        );
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Repartidor asignado correctamente.\n"
-                        + "Pedido #"
-                        + pedidoEncontrado.getIdPedido()
-                        + " ahora está EN REPARTO.\n"
-                        + "Repartidor: "
-                        + repartidorSeleccionado.getNombre(),
-                "Entrega iniciada",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        /*
+         * Se utiliza una única operación transaccional.
+         *
+         * EntregaDAO se encarga de:
+         * 1. INSERT de la entrega.
+         * 2. UPDATE del pedido a EN_REPARTO.
+         * 3. COMMIT si funcionan ambas.
+         * 4. ROLLBACK si alguna falla.
+         */
+        boolean entregaIniciada =
+                entregaDAO.iniciarEntrega(entrega);
+
+
+        if (entregaIniciada) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Repartidor asignado correctamente.\n"
+                            + "Pedido #"
+                            + pedidoEncontrado.getIdPedido()
+                            + " ahora está EN REPARTO.\n"
+                            + "Repartidor: "
+                            + repartidorSeleccionado.getNombre(),
+                    "Entrega iniciada",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } else {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo iniciar la entrega.\n"
+                            + "No se realizaron cambios en la base de datos.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }

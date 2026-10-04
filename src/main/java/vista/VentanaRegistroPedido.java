@@ -11,7 +11,7 @@ import java.awt.*;
 
 /*
  * Ventana que permite registrar nuevos pedidos
- * almacenarlos en la base de datos MySqL
+ * y almacenarlos en la base de datos MySQL.
  */
 public class VentanaRegistroPedido extends JFrame {
 
@@ -119,16 +119,29 @@ public class VentanaRegistroPedido extends JFrame {
                     );
         }
 
-        pedidoDAO.guardar(pedido);
+        boolean guardado =
+                pedidoDAO.guardar(pedido);
 
-        JOptionPane.showMessageDialog(
-                this,
-                "Pedido registrado correctamente.",
-                "SpeedFast",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        if (guardado) {
 
-        campoDireccion.setText("");
-        comboTipo.setSelectedIndex(0);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Pedido registrado correctamente.",
+                    "SpeedFast",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            campoDireccion.setText("");
+            comboTipo.setSelectedIndex(0);
+
+        } else {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo registrar el pedido.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }

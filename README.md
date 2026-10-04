@@ -1,22 +1,50 @@
-# SpeedFast - Semana 7
+# SpeedFast - Semana 8
 
 ## Descripción
 
 Proyecto desarrollado en Java para la gestión de pedidos de SpeedFast.
 
-En esta semana se incorporó persistencia de datos mediante MySQL y JDBC, permitiendo que la interfaz gráfica se comunique directamente con una base de datos relacional.
+En esta semana se completó la integración entre la interfaz gráfica Swing, las clases DAO y la base de datos MySQL mediante JDBC, incorporando operaciones CRUD completas para pedidos, repartidores y entregas.
 
 ## Funcionalidades
 
-- Registrar pedidos desde la interfaz gráfica.
-- Registrar repartidores desde la interfaz gráfica.
-- Guardar pedidos y repartidores en MySQL.
-- Consultar pedidos almacenados en la base de datos.
-- Mostrar los pedidos mediante JTable.
+### Gestión de pedidos
+- Registrar pedidos.
+- Listar pedidos almacenados en MySQL.
+- Editar dirección, tipo y estado.
+- Eliminar pedidos.
+- Mostrar repartidor asociado.
+- Actualizar la tabla desde la base de datos.
+
+### Gestión de repartidores
+- Registrar repartidores.
+- Listar repartidores.
+- Editar nombre.
+- Eliminar repartidores.
+- Actualizar la tabla desde MySQL.
+
+### Gestión de entregas
 - Asignar repartidores a pedidos.
-- Registrar entregas relacionando pedidos y repartidores.
-- Actualizar el estado de los pedidos a EN_REPARTO.
-- Mostrar el repartidor asociado a cada pedido.
+- Registrar entregas.
+- Listar entregas.
+- Editar la relación entre pedido y repartidor.
+- Eliminar entregas.
+- Registrar fecha y hora de la entrega.
+
+## CRUD
+
+Se implementaron las cuatro operaciones principales de persistencia:
+
+- CREATE: registrar nuevos datos.
+- READ: consultar y listar datos.
+- UPDATE: modificar registros existentes.
+- DELETE: eliminar registros.
+
+Las operaciones se implementan mediante las clases:
+
+- `PedidoDAO`
+- `RepartidorDAO`
+- `EntregaDAO`
 
 ## Base de datos
 
@@ -24,42 +52,60 @@ Base de datos utilizada:
 
 `speedfast_db`
 
-Tablas:
+Tablas principales:
 
 - `pedido`
 - `repartidor`
 - `entrega`
 
-La tabla `entrega` relaciona los pedidos con los repartidores mediante claves foráneas.
+La tabla `entrega` relaciona pedidos y repartidores mediante claves foráneas.
+
+El proyecto incluye el archivo:
+
+`speedfast_db.sql`
+
+Este script permite crear la base de datos y las tablas necesarias para ejecutar la aplicación.
 
 ## JDBC
 
-La aplicación utiliza JDBC para conectar Java con MySQL mediante MySQL Connector/J.
+La aplicación se conecta a MySQL mediante JDBC utilizando:
 
-Se implementaron las siguientes clases DAO:
+- `Connection`
+- `DriverManager`
+- `PreparedStatement`
+- `ResultSet`
+- `executeQuery()`
+- `executeUpdate()`
 
-- `ConexionBD`
-- `PedidoDAO`
-- `RepartidorDAO`
-- `EntregaDAO`
+La clase `ConexionBD` centraliza la conexión con la base de datos.
 
-Las operaciones utilizan `PreparedStatement`, `ResultSet` y manejo de excepciones SQL.
+## Integridad referencial
 
-## Estructura principal
+Las claves foráneas de la tabla `entrega` impiden eliminar pedidos o repartidores que todavía tengan entregas asociadas.
 
-- `main`: punto de inicio de la aplicación.
-- `modelo`: clases del modelo de SpeedFast.
-- `vista`: ventanas desarrolladas con Java Swing.
-- `dao`: clases encargadas del acceso a la base de datos.
+Para eliminar esos registros primero deben eliminarse las relaciones correspondientes en la tabla `entrega`.
 
 ## Interfaz gráfica
 
 La aplicación utiliza Java Swing e incluye:
 
-- Registro de pedidos.
-- Registro de repartidores.
-- Listado de pedidos mediante JTable.
-- Asignación de repartidores e inicio de entregas.
+- `JFrame`
+- `JPanel`
+- `JButton`
+- `JTable`
+- `JScrollPane`
+- `JOptionPane`
+- `JComboBox`
+- `JTextField`
+
+Las tablas permiten visualizar los datos almacenados en MySQL y realizar operaciones de edición, eliminación y actualización.
+
+## Estructura principal
+
+- `main`: punto de inicio de la aplicación.
+- `modelo`: clases del dominio.
+- `dao`: acceso y persistencia de datos.
+- `vista`: ventanas desarrolladas con Swing.
 
 ## Tecnologías
 
@@ -70,12 +116,18 @@ La aplicación utiliza Java Swing e incluye:
 - MySQL Workbench
 - Maven
 - IntelliJ IDEA
+- Git
+- GitHub
 
 ## Ejecución
 
 1. Tener MySQL Server iniciado.
-2. Crear la base de datos `speedfast_db` y sus tablas.
-3. Configurar las credenciales de conexión en `ConexionBD`.
-4. Ejecutar:
+2. Ejecutar el archivo `speedfast_db.sql` incluido en el proyecto para crear la base de datos `speedfast_db`, sus tablas, claves foráneas y restricciones.
+3. Verificar las credenciales de conexión en `ConexionBD`.
+4. Ejecutar la clase:
 
 `main.Main`
+
+## Autor
+
+Proyecto académico desarrollado para Desarrollo Orientado a Objetos II.
